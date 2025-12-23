@@ -23,13 +23,22 @@ class Bot
 
     public static function send_message($chat_id, string $text, array $options = [])
     {
-        return self::send_request('sendMessage', [
+        $data = [
             'chat_id' => $chat_id,
             'text' => $text,
             'parse_mode' => TELEGRAM_BOT_PARSE_MODE,
             'protect_content' => $options['protect_content'] ?? TELEGRAM_BOT_PROTECT_CONTENT,
-            ...$options
-        ]);
+        ];
+
+        if (isset($options['reply_markup'])) {
+            $data['reply_markup'] = $options['reply_markup'];
+        }
+
+        if (isset($options['reply_to_message_id'])) {
+            $data['reply_to_message_id'] = $options['reply_to_message_id'];
+        }
+
+        return self::send_request('sendMessage', $data);
     }
 
     public static function set_webhook(string $url, array $options = [])

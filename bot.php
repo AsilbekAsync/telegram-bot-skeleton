@@ -1,23 +1,17 @@
 <?php
 
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
-ini_set('log_errors', true);
-ini_set('display_errors', true);
-ini_set('error_log', __DIR__ . '/logs/error.log');
-
+require_once __DIR__ . '/config/error-config.php';
 require_once __DIR__ . '/config/system.php';
 require_once __DIR__ . '/library/autoload.php';
+require_once __DIR__ . '/app/autoload.php';
 
-if (Message::$text === "/start") {
-    Bot::send_message(
-        From::$id,
-        "Salom: " . From::$first_name
-    );
-} else {
-    Bot::send_message(
-        From::$id,
-        "Noma'lum buyruq!"
-    );
-}
+Updates::parse();
+Updates::save_update(__DIR__ . '/update.json');
+
+if (Message::$text)
+    MessageEvent::handle();
+
+if (CallbackQuery::$data)
+    CallbackQueryEvent::handle();
 
 Bot::done();

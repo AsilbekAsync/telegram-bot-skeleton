@@ -24,29 +24,71 @@ class Message
     public static $date;
 }
 
-$update = file_get_contents("php://input");
+class CallbackQuery
+{
+    public static $id;
+    public static $data;
+}
 
-$update = json_decode($update);
+class Updates
+{
+    public static $update = null;
+    public static function parse($update = null)
+    {
+        $update = json_decode($update) ?? json_decode(file_get_contents("php://input"));
+        self::$update = $update;
 
-if (isset($update->message)) {
-    $message = $update->message;
+        if (isset($update->message)) {
+            $message = $update->message;
+            $from = $message->from;
 
-    $from = $message->from;
+            From::$id = $from->id;
+            From::$is_bot = $from->is_bot;
+            From::$first_name = $from->first_name;
+            From::$last_name = $from->last_name;
+            From::$username = $from->username;
 
-    From::$id = $from->id;
-    From::$is_bot = $from->is_bot;
-    From::$first_name = $from->first_name;
-    From::$last_name = $from->last_name;
-    From::$username = $from->username;
+            $chat = $message->chat;
 
-    $chat = $message->chat;
+            Chat::$id = $chat->id;
+            Chat::$first_name = $chat->first_name;
+            Chat::$last_name = $chat->last_name;
+            Chat::$username = $chat->username;
+            Chat::$type = $chat->type;
 
-    Chat::$id = $chat->id;
-    Chat::$first_name = $chat->first_name;
-    Chat::$last_name = $chat->last_name;
-    Chat::$username = $chat->username;
-    Chat::$type = $chat->type;
+            Message::$text = $message->text;
+            Message::$date = $message->date;
+        } else if (isset($update->callback_query)) {
+            $callback_query = $update->callback_query;
+            $from = $callback_query->from;
 
-    Message::$text = $message->text;
-    Message::$date = $message->date;
+            From::$id = $from->id;
+            From::$is_bot = $from->is_bot;
+            From::$first_name = $from->first_name;
+            From::$last_name = $from->last_name;
+            From::$username = $from->username;
+
+            $message = $callback_query->message;
+            $chat = $message->chat;
+
+            Chat::$id = $chat->id;
+            Chat::$first_name = $chat->first_name;
+            Chat::$last_name = $chat->last_name;
+            Chat::$username = $chat->username;
+            Chat::$type = $chat->type;
+
+            CallbackQuery::$id = $callback_query->id;
+            CallbackQuery::$data = $callback_query->data;
+        }
+    }
+
+    public static function get_update()
+    {
+        return self::$update;
+    }
+
+    public static function save_update($path)
+    {
+        file_put_contents($path, json_encode(self::$update, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
 }
