@@ -39,6 +39,17 @@ class Bot
         ] + $options);
     }
 
+    public static function edit_message_text($chat_id, int $message_id, string $text, array $options = [])
+    {
+        return self::send_request('editMessageText', [
+            'chat_id' => $chat_id,
+            'message_id' => $message_id,
+            'text' => $text,
+            'parse_mode' => TELEGRAM_BOT_PARSE_MODE,
+            'protect_content' => $options['protect_content'] ?? TELEGRAM_BOT_PROTECT_CONTENT,
+        ] + $options);
+    }
+
     public static function done()
     {
         exit;

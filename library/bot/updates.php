@@ -22,6 +22,7 @@ class Message
 {
     public static $text;
     public static $date;
+    public static $message_id;
 }
 
 class CallbackQuery
@@ -58,6 +59,7 @@ class Updates
 
             Message::$text = $message->text;
             Message::$date = $message->date;
+            Message::$message_id = $message->message_id;
         } else if (isset($update->callback_query)) {
             $callback_query = $update->callback_query;
             $from = $callback_query->from;
@@ -79,6 +81,8 @@ class Updates
 
             CallbackQuery::$id = $callback_query->id;
             CallbackQuery::$data = $callback_query->data;
+
+            Message::$message_id = $message->message_id;
         }
     }
 
