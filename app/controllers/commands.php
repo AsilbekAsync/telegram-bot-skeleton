@@ -8,7 +8,7 @@ class BaseCommandsController
             From::$id,
             Messages::welcome(),
             [
-                'reply_markup' => Keyboards::index_menu()
+                'reply_markup' => Keyboards::locale_choice(),
             ]
         );
     }

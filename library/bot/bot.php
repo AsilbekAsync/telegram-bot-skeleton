@@ -17,6 +17,10 @@ class Bot
             throw new Exception(curl_error($query), curl_errno($query));
         }
 
+        if (curl_getinfo($query, CURLINFO_HTTP_CODE) !== 200) {
+            error_log("Telegram API returned HTTP code " . curl_getinfo($query, CURLINFO_HTTP_CODE) . " for command $command with response: $result");
+        }
+
         curl_close($query);
         return json_decode($result, true);
     }

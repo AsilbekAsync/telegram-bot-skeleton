@@ -7,7 +7,21 @@ require_once __DIR__ . '/app/autoload.php';
 
 
 Updates::parse();
-Updates::save_update(__DIR__ . '/update.json');
+
+$user_info = \Database\Models\Users::get_by_chat_id(From::$id);
+
+if ($user_info === null) {
+    $insert_id = \Database\Models\Users::create(From::$id);
+
+    Store::$locale = "uz";
+    Store::$user_id = $insert_id;
+} else {
+    Store::$locale = $user_info['locale'];
+    Store::$user_id = $user_info['id'];
+}
+
+Keywords::set_locale(Store::$locale);
+Messages::setLocale(Store::$locale);
 
 if (Message::$text !== null) {
     MessageEvent::handle();

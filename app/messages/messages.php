@@ -1,34 +1,46 @@
 <?php
 
-class Messages
+/**
+ * Messages localization facade
+ *
+ * @method static string welcome()
+ * @method static string locale_changed()
+ */
+
+final class Messages
 {
-    public static function welcome()
+    private static string $locale = 'en';
+    private static ?object $class = null;
+
+    public static function init(): void
     {
-        return "Welcome to my currency exchange rate bot!";
+        self::setLocale(self::$locale);
     }
 
-    public static function make_exchange_rate_message($base_currency, $rates)
+    public static function setLocale(string $locale): void
     {
-        $message = "Exchange rates for 1 $base_currency:\n\n";
-        $rates = array_filter(
-            $rates,
-            fn($currency) => in_array($currency, ALLOWED_CURRENCIES),
-            ARRAY_FILTER_USE_KEY
-        );
-        foreach ($rates as $currency => $rate) {
-            // $currency .= ' ' . Formatter::currency_to_flag_emoji($currency);
-            $message .= "1 $base_currency = $rate $currency\n";
+        $path = __DIR__ . "/lang/{$locale}.php";
+
+        if (!is_file($path)) {
+            $locale = 'en';
+            $path = __DIR__ . "/lang/en.php";
         }
-        return $message;
+
+        self::$locale = $locale;
+        self::$class = require $path;
     }
 
-    public static function error_fetching_rates()
+    private static function get(string $method, ...$args): string
     {
-        return "Sorry, I couldn't fetch the exchange rates at this time. Please try again later.";
+        if (self::$class && method_exists(self::$class, $method)) {
+            return self::$class::$method(...$args);
+        }
+
+        return self::$locale . "::" . $method;
     }
 
-    public static function loading_rates()
+    public static function __callStatic(string $name, array $arguments): string
     {
-        return "Fetching the latest exchange rates...";
+        return self::get($name, ...$arguments);
     }
 }

@@ -4,24 +4,27 @@ class CallbackQueryEvent
 {
     public static function handle()
     {
-        if (mb_stripos(CallbackQuery::$data, 'currency=') !== false) {
-            Bot::edit_message_text(
+        $data = CallbackQuery::$data;
+
+        if (mb_stripos($data, 'set_locale=') !== false) {
+            $parts = explode('=', $data);
+            $locale = $parts[1];
+
+            \Database\Models\Users::update(
                 From::$id,
-                Message::$message_id,
-                Messages::loading_rates()
+                'locale',
+                $locale
             );
-            $currency = str_replace('currency=', '', CallbackQuery::$data);
-            $rates = CurrencyAPI::get_exchange_rate($currency);
-            $message = $rates !== null
-                ? Messages::make_exchange_rate_message($currency, $rates)
-                : Messages::error_fetching_rates();
+            Store::$locale = $locale;
+            Keywords::set_locale($locale);
+            Messages::setLocale($locale);
 
             Bot::edit_message_text(
                 From::$id,
                 Message::$message_id,
-                $message,
+                Messages::locale_changed(),
                 [
-                    'reply_markup' => Keyboards::index_menu()
+                    'reply_markup' => Keyboards::locale_choice(),
                 ]
             );
         }

@@ -3,23 +3,26 @@
 
 class Keyboards
 {
-    public static function index_menu()
+    public static function locale_choice(): string
     {
-        $keyboard = [];
-        $row = [];
+        $locales = [
+            'uz' => "O'zbekcha",
+            'ru' => "Русский",
+            'en' => "English",
+        ];
 
-        foreach (ALLOWED_CURRENCIES as $currency) {
-            $row[] = [
-                'text' => $currency,
-                'callback_data' => "currency=$currency"
+        $buttons = [];
+
+        foreach ($locales as $key => $value) {
+            $delta = Store::$locale === $key ? " ✅" : "";
+            $buttons[] = [
+                'text' => "$delta $value",
+                'callback_data' => "set_locale=$key",
             ];
-
-            if (count($row) === 3) {
-                $keyboard[] = $row;
-                $row = [];
-            }
         }
 
-        return json_encode(['inline_keyboard' => $keyboard]);
+        $buttons = array_chunk($buttons, 2);
+
+        return KeyboardsConstructor::inline_keyboard($buttons);
     }
 }
